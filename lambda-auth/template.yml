@@ -1,0 +1,81 @@
+# This is the SAM template that represents the architecture of your serverless application
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html
+
+# The AWSTemplateFormatVersion identifies the capabilities of the template
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/format-version-structure.html
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  lambda-auth
+
+Transform:
+- AWS::Serverless-2016-10-31
+
+Resources:
+  ItemAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Dev
+      Auth:
+        DefaultAuthorizer: TokenAuthorizer
+        Authorizers:
+          TokenAuthorizer:
+            FunctionArn: !GetAtt TokenAuthorizerFunction.Arn
+            Identity: 
+              Headers:
+                - auth
+
+  GetItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/items.getItem
+      Runtime: nodejs10.x
+      Description: A Lambda function that returns an item.
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        ItemAPI:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ItemAPI
+            Path: /item
+            Method: GET
+
+  RegisterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/registration.register
+      Runtime: nodejs10.x
+      Description: A Lambda function that returns an item.
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        Register:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ItemAPI
+            Path: /register
+            Method: POST
+            Auth:
+              Authorizer: NONE
+
+  TokenAuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers/tokenAuthorizer.authorize
+      Runtime: nodejs10.x
+      Policies:
+        - AWSLambdaBasicExecutionRole
+
+
+
+Outputs:
+  ApiId:
+    Description: "API ID"
+    Value: !Ref ItemAPI
+
+  ItemApiUrl:
+    Description: "API endpoint URL for Prod environment"
+    Value: !Sub 'https://${ItemAPI}.execute-api.${AWS::Region}.amazonaws.com/dev/'
