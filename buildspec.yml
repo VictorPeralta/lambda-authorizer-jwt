@@ -16,6 +16,7 @@ phases:
       # Remove all dependencies not needed for the Lambda deployment package (the packages from devDependencies in package.json)
       # - npm prune --production
       - sam build
+      - ls
   build:
     commands:
       # Use AWS SAM to package the application by using AWS CloudFormation
