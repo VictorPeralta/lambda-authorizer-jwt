@@ -15,14 +15,16 @@ exports.authorize = async (event, context) => {
         };
 
         //Return user (token subject) as a variable, can access in lambda as event.requestContext.user
-        context.user = decodedJWT.sub;
+        context.token = decodedJWT;
 
         return {
             principalId: decodedJWT.sub,
             policyDocument,
             context
-        }
+        };
+        
     } catch (error) {
-        return "Could not authorize user"
+        //If no token is found or any other error is received, return unauthorized response
+        throw new Error("Unauthorized");   
     }
-}
+};

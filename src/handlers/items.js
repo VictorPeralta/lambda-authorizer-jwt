@@ -6,7 +6,7 @@ exports.getItem = async (event) => {
             id: 42,
             name: "Banana",
             color: "Yellow",
-            user: event.requestContext.authorizer.user //User comes from authorizer
+            tokenUsed: event.requestContext.authorizer.token //User comes from authorizer
         };
 
         return {
