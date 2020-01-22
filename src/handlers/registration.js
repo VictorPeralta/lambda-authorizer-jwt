@@ -14,9 +14,9 @@ exports.register = async (event, context) => {
                 "Password": bcrypt.hashSync(user.password, 10)
             }
         };
-    
+
         await docClient.put(params).promise();
-    
+
 
         const payload = {
             sub: user.email,
@@ -32,8 +32,10 @@ exports.register = async (event, context) => {
         };
 
     } catch (error) {
-        return {statusCode: 500,
-        body: error};
+        return {
+            statusCode: 500,
+            body: JSON.stringify({error});
+        };
     }
 
 
