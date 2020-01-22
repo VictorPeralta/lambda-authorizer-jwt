@@ -64,6 +64,8 @@ Resources:
       Description: A Lambda function that returns an item.
       Policies:
         - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
       Events:
         Register:
           Type: Api
