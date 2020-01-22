@@ -13,11 +13,10 @@ Transform:
 Resources:
   UserTable:
     Type: AWS::DynamoDB::Table
+    TableName: 'LambdaAuthUserTable'
     Properties: 
       AttributeDefinitions: 
         - AttributeName: Email
-          AttributeType: S
-        - AttributeName: Password
           AttributeType: S
       KeySchema: 
         - AttributeName: Email
