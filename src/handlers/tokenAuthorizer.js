@@ -15,7 +15,7 @@ exports.authorize = async (event, context) => {
         };
 
         //Return user (token subject) as a variable, can access in lambda as event.requestContext.user
-        context.token = decodedJWT;
+        context.userEmail = decodedJWT.sub;
 
         return {
             principalId: decodedJWT.sub,

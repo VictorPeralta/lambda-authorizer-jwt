@@ -24,6 +24,22 @@ Resources:
               Headers:
                 - auth
 
+  UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: Email
+          AttributeType: S
+        - AttributeName: Password
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: Email
+          KeyType: HASH
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+
   GetItemFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -50,6 +66,8 @@ Resources:
       Description: A Lambda function that returns an item.
       Policies:
         - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+          TableName: UserTable
       Events:
         Register:
           Type: Api
@@ -79,3 +97,7 @@ Outputs:
   ItemApiUrl:
     Description: "API endpoint URL for Prod environment"
     Value: !Sub 'https://${ItemAPI}.execute-api.${AWS::Region}.amazonaws.com/dev/'
+
+  TableName: 
+    Description: "DynamoDB new table name"
+    Value: !Ref UserTable

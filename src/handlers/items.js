@@ -2,11 +2,13 @@
 exports.getItem = async (event) => {
     console.log(event)
     try {
+        console.log(event.requestContext)
         const body = {
             id: 42,
             name: "Banana",
             color: "Yellow",
-            tokenUsed: event.requestContext.authorizer.token //User comes from authorizer
+            user: event.requestContext.authorizer.user, //User comes from authorizer
+            userID: event.requestContext.authorizer.userID
         };
 
         return {

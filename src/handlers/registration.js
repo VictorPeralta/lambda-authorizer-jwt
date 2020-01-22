@@ -4,9 +4,8 @@ exports.register = async (event, context) => {
     try {
         const { user } = JSON.parse(event.body);
         const payload = {
-            sub: user,
-            iss: "test-app",
-            userID: "1234-1234"
+            sub: user.email,
+            iss: "test-app"
         }
 
         //A JWT is created with the payload content
