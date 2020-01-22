@@ -32,7 +32,8 @@ exports.register = async (event, context) => {
         };
 
     } catch (error) {
-        return error;
+        return {statusCode: 500,
+        body: error};
     }
 
 
