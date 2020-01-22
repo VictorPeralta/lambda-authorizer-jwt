@@ -10,8 +10,8 @@ exports.register = async (event, context) => {
         const params = {
             TableName: "LambdaAuthUserTable",
             Item: {
-                "email": user.email,
-                "password": await bcrypt.hashSync(user.password, 10)
+                "Email": user.email,
+                "Password": bcrypt.hashSync(user.password, 10)
             }
         };
     
