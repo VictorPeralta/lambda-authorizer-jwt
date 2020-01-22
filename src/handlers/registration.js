@@ -6,12 +6,12 @@ var docClient = new aws.DynamoDB.DocumentClient();
 exports.register = async (event, context) => {
     try {
         const user = JSON.parse(event.body);
-        if(!user.email || !user.password) throw new Error("Request must include 'email' and 'password'.")
+
         const params = {
             TableName: "LambdaAuthUserTable",
             Item: {
                 "Email": user.email,
-                "Password": bcrypt.hashSync(user.password, 10)
+                "Password": await bcrypt.hash(user.password, 8)
             }
         };
 
