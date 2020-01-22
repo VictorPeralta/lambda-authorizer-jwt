@@ -1,8 +1,23 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+var aws = require('aws-sdk');
+var docClient = new aws.DynamoDB.DocumentClient();
 
 exports.register = async (event, context) => {
     try {
         const { user } = JSON.parse(event.body);
+
+        const params = {
+            TableName: "LambdaAuthUserTable",
+            Item: {
+                "email": user.email,
+                "password": await bcrypt.hashSync(user.password, 10)
+            }
+        };
+    
+        await docClient.put(params).promise();
+    
+
         const payload = {
             sub: user.email,
             iss: "test-app"
