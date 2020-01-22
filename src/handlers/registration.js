@@ -5,7 +5,7 @@ var docClient = new aws.DynamoDB.DocumentClient();
 
 exports.register = async (event, context) => {
     try {
-        const { user } = JSON.parse(event.body);
+        const user = JSON.parse(event.body);
 
         const params = {
             TableName: "LambdaAuthUserTable",
@@ -32,9 +32,10 @@ exports.register = async (event, context) => {
         };
 
     } catch (error) {
+        console.log(error);
         return {
             statusCode: 500,
-            body: JSON.stringify(error)
+            body: error.message
         };
     }
 
