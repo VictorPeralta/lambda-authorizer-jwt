@@ -18,8 +18,9 @@ exports.getItem = async (event) => {
         };
     } catch (error) {
         console.log(error);
-        
-        return {statusCode: 500,
-            body: error};
+        return {
+            statusCode: 500,
+            body: error.message
+        };
     }
 }
