@@ -11,19 +11,6 @@ Transform:
 - AWS::Serverless-2016-10-31
 
 Resources:
-  ItemAPI:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: Dev
-      Auth:
-        DefaultAuthorizer: TokenAuthorizer
-        Authorizers:
-          TokenAuthorizer:
-            FunctionArn: !GetAtt TokenAuthorizerFunction.Arn
-            Identity: 
-              Headers:
-                - auth
-
   UserTable:
     Type: AWS::DynamoDB::Table
     Properties: 
@@ -39,6 +26,18 @@ Resources:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
 
+  ItemAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Dev
+      Auth:
+        DefaultAuthorizer: TokenAuthorizer
+        Authorizers:
+          TokenAuthorizer:
+            FunctionArn: !GetAtt TokenAuthorizerFunction.Arn
+            Identity: 
+              Headers:
+                - auth
 
   GetItemFunction:
     Type: AWS::Serverless::Function
@@ -65,8 +64,7 @@ Resources:
       Runtime: nodejs10.x
       Description: A Lambda function that returns an item.
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserTable
+        - AWSLambdaBasicExecutionRole
       Events:
         Register:
           Type: Api
@@ -85,8 +83,6 @@ Resources:
       Runtime: nodejs10.x
       Policies:
         - AWSLambdaBasicExecutionRole
-
-
 
 Outputs:
   ApiId:
