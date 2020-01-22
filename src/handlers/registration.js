@@ -34,7 +34,7 @@ exports.register = async (event, context) => {
     } catch (error) {
         return {
             statusCode: 500,
-            body: JSON.stringify({error});
+            body: JSON.stringify(error)
         };
     }
 
