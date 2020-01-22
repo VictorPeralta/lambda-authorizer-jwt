@@ -56,7 +56,7 @@ To deploy to AWS, run the following commands. Replace BUCKET_NAME for an existin
   - Set up CodeBuild
     - Set build stages in buildspec.yml
 - Add tests
-
+- Add email notifications on user sign up
 
 
 ## Resources

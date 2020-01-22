@@ -65,9 +65,8 @@ Resources:
       Runtime: nodejs10.x
       Description: A Lambda function that returns an item.
       Policies:
-        - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-          TableName: UserTable
+            TableName: !Ref UserTable
       Events:
         Register:
           Type: Api
