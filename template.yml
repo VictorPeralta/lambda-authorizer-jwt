@@ -66,8 +66,11 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
-        - SESCrudPolicy:
-            IdentityName: 'peralta.r.victor@gmail.com'
+        - Statement:
+            Effect: Allow
+            Action: 
+              - ses:SendEmail
+            Resource: '*'
 
 
       Events:

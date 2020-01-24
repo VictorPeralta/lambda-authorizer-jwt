@@ -18,7 +18,7 @@ exports.register = async (event, context) => {
 
         await docClient.put(params).promise();
 
-        var params = {
+        var email = {
             Destination: {
                 ToAddresses: [user.email]
             },
@@ -41,15 +41,9 @@ exports.register = async (event, context) => {
             ],
         };
 
-
-        var sendPromise = new aws.SES({apiVersion: '2010-12-01'}).sendEmail(params).promise();
-        sendPromise.then(
-            function(data) {
-              console.log(data.MessageId);
-            }).catch(
-              function(err) {
-              console.error(err, err.stack);
-            });
+        aws.config.update({region: 'us-west-2'});
+        var sendPromise = await new aws.SES({apiVersion: '2010-12-01'}).sendEmail(email).promise();
+        console.log(sendPromise.MessageId)
 
         const payload = {
             sub: user.email,
