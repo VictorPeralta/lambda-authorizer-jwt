@@ -48,15 +48,8 @@ To deploy to AWS, run the following commands. Replace BUCKET_NAME for an existin
 ```
 
 ## To-do
-- Add DynamoDB user store
-  - Add DynamoDB to template.yml
-  - RegisterFunction: Add users to DB
-- Configure CICD
-  - Set up CodePipeline
-  - Set up CodeBuild
-    - Set build stages in buildspec.yml
 - Add tests
-- Add email notifications on user sign up
+
 
 
 ## Resources
