@@ -66,6 +66,10 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
+        - SESCrudPolicy:
+            IdentityName: 'peralta.r.victor@gmail.com'
+
+
       Events:
         Register:
           Type: Api
