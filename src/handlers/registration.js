@@ -41,7 +41,7 @@ const addUserToDB = async (user) => {
             "Password": await bcrypt.hash(user.password, 8)
         }
     };
-    docClient.put(params).promise();
+    await docClient.put(params).promise();
 }
 
 const sendRegistrationEmail = async (user) => {
@@ -69,7 +69,7 @@ const sendRegistrationEmail = async (user) => {
     };
 
     aws.config.update({region: 'us-west-2'});
-    new aws.SES({apiVersion: '2010-12-01'}).sendEmail(email).promise();
+    await new aws.SES({apiVersion: '2010-12-01'}).sendEmail(email).promise();
 }
 
 const signToken = (user) => {
