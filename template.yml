@@ -28,7 +28,7 @@ Resources:
   ItemAPI:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Dev
+      StageName: Test
       Auth:
         DefaultAuthorizer: TokenAuthorizer
         Authorizers:
@@ -45,6 +45,7 @@ Resources:
       Handler: handlers/items.getItem
       Runtime: nodejs10.x
       Description: A Lambda function that returns an item.
+      VersionDescription: test
       Policies:
         - AWSLambdaBasicExecutionRole
       Events:
@@ -62,6 +63,7 @@ Resources:
       Handler: handlers/registration.register
       Runtime: nodejs10.x
       Description: A Lambda function that returns an item.
+      VersionDescription: test
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
@@ -71,8 +73,6 @@ Resources:
             Action: 
               - ses:SendEmail
             Resource: '*'
-
-
       Events:
         Register:
           Type: Api
@@ -89,6 +89,7 @@ Resources:
       CodeUri: src/
       Handler: handlers/tokenAuthorizer.authorize
       Runtime: nodejs10.x
+      VersionDescription: test
       Policies:
         - AWSLambdaBasicExecutionRole
 
