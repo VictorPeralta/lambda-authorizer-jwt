@@ -26,7 +26,7 @@ const registerUserGetToken = async (user) => {
     try {
         await addUserToDB(user);  
         await sendRegistrationEmail(user);
-        return signToken(user);
+        return signToken(user) + testversion;
         
     } catch (error) {
         throw error;
