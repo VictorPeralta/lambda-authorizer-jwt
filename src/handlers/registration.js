@@ -35,7 +35,7 @@ const registerUserGetToken = async (user) => {
 
 const addUserToDB = async (user) => {
     const params = {
-        TableName: "LambdaAuthUserTable",
+        TableName: process.env.TABLE_NAME,
         Item: {
             "Email": user.email,
             "Password": await bcrypt.hash(user.password, 8)

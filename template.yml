@@ -10,11 +10,18 @@ Description: >-
 Transform:
 - AWS::Serverless-2016-10-31
 
+Parameters:
+  StageName:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+
 Resources:
   UserTable:
     Type: AWS::DynamoDB::Table
     Properties: 
-      TableName: 'LambdaAuthUserTable'
       AttributeDefinitions: 
         - AttributeName: Email
           AttributeType: S
@@ -28,7 +35,7 @@ Resources:
   ItemAPI:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Testv2
+      StageName: !Ref StageName
       Auth:
         DefaultAuthorizer: TokenAuthorizer
         Authorizers:
@@ -73,6 +80,9 @@ Resources:
             Action: 
               - ses:SendEmail
             Resource: '*'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref UserTable
       Events:
         Register:
           Type: Api
