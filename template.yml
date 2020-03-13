@@ -52,7 +52,6 @@ Resources:
       Handler: handlers/items.getItem
       Runtime: nodejs10.x
       Description: A Lambda function that returns an item.
-      AutoPublishAlias: testv2
       Policies:
         - AWSLambdaBasicExecutionRole
       Events:
@@ -70,7 +69,6 @@ Resources:
       Handler: handlers/registration.register
       Runtime: nodejs10.x
       Description: A Lambda function that returns an item.
-      AutoPublishAlias: testv2
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
@@ -99,7 +97,6 @@ Resources:
       CodeUri: src/
       Handler: handlers/tokenAuthorizer.authorize
       Runtime: nodejs10.x
-      AutoPublishAlias: testv2
       Policies:
         - AWSLambdaBasicExecutionRole
 
