@@ -2,11 +2,31 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: lambda-auth
 Transform:
 - AWS::Serverless-2016-10-31
+Parameters:
+  StageName:
+    Type: String
+    Default: dev
+    AllowedValues:
+    - dev
+    - prod
 Resources:
+  UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: Email
+        AttributeType: S
+      KeySchema:
+      - AttributeName: Email
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
   ItemAPI:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Dev
+      StageName:
+        Ref: StageName
       Auth:
         DefaultAuthorizer: TokenAuthorizer
         Authorizers:
@@ -21,7 +41,7 @@ Resources:
   GetItemFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://lambda-authorize-sam/8008e7233b116a0c0f691c0d8bd63fec
+      CodeUri: s3://lifetime-sam/9c3412b4178662fd88c0146362d93f45
       Handler: handlers/items.getItem
       Runtime: nodejs10.x
       Description: A Lambda function that returns an item.
@@ -38,12 +58,24 @@ Resources:
   RegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://lambda-authorize-sam/8008e7233b116a0c0f691c0d8bd63fec
+      CodeUri: s3://lifetime-sam/9c3412b4178662fd88c0146362d93f45
       Handler: handlers/registration.register
       Runtime: nodejs10.x
       Description: A Lambda function that returns an item.
       Policies:
       - AWSLambdaBasicExecutionRole
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UserTable
+      - Statement:
+          Effect: Allow
+          Action:
+          - ses:SendEmail
+          Resource: '*'
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: UserTable
       Events:
         Register:
           Type: Api
@@ -57,7 +89,7 @@ Resources:
   TokenAuthorizerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://lambda-authorize-sam/8008e7233b116a0c0f691c0d8bd63fec
+      CodeUri: s3://lifetime-sam/9c3412b4178662fd88c0146362d93f45
       Handler: handlers/tokenAuthorizer.authorize
       Runtime: nodejs10.x
       Policies:
@@ -71,3 +103,7 @@ Outputs:
     Description: API endpoint URL for Prod environment
     Value:
       Fn::Sub: https://${ItemAPI}.execute-api.${AWS::Region}.amazonaws.com/dev/
+  TableName:
+    Description: DynamoDB new table name
+    Value:
+      Ref: UserTable

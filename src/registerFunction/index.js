@@ -4,7 +4,7 @@ var aws = require('aws-sdk');
 var docClient = new aws.DynamoDB.DocumentClient();
 
 
-exports.register = async (event, context) => {
+exports.handler = async (event, context) => {
     try {
         const user = JSON.parse(event.body);
         const token = await registerUserGetToken(user);
@@ -53,7 +53,7 @@ const sendRegistrationEmail = async (user) => {
             Body: {
                 Html: {
                     Charset: "UTF-8",
-                    Data: `<h1>Welcome to lifeboard</h1>. <br>Hello ${user.email}, please confirm your address by clicking <a href='#'>here</a>`
+                    Data: `<h1>Welcome</h1>. <br>Hello ${user.email}, please confirm your address by clicking <a href='#'>here</a>`
                 }
             },
             Subject: {
@@ -61,9 +61,9 @@ const sendRegistrationEmail = async (user) => {
                 Data: 'Account activation'
             }
         },
-        Source: 'peralta.r.victor@gmail.com', /* required */
+        Source: process.env.SENDER_EMAIL, /* required */
         ReplyToAddresses: [
-            'peralta.r.victor@gmail.com',
+            process.env.SENDER_EMAIL,
             /* more items */
         ],
     };

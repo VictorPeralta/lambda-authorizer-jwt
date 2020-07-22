@@ -1,12 +1,12 @@
+const aws = require('aws-sdk');
+const docClient = new aws.DynamoDB.DocumentClient();
 
-exports.getItem = async (event) => {
+exports.handler = async (event) => {
     console.log(event)
     try {
         console.log(event.requestContext)
         const body = {
-            id: 42,
-            name: "Banana",
-            color: "Yellow",
+            userlist: await getUsers(),
             user: event.requestContext.authorizer.userEmail, //User comes from authorizer
         };
 
@@ -23,3 +23,11 @@ exports.getItem = async (event) => {
         };
     }
 }
+
+const getUsers = async () => {
+    const params = {
+        TableName: process.env.TABLE_NAME
+    };
+    return await docClient.scan(params).promise();
+}
+

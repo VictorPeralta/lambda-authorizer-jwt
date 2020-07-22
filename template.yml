@@ -10,6 +10,17 @@ Description: >-
 Transform:
 - AWS::Serverless-2016-10-31
 
+Globals:
+  Function:
+    Runtime: nodejs12.x
+    Handler: index.handler
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref UserTable
+    Environment:
+      Variables:
+        SENDER_EMAIL: !Ref SenderEmail
+
 Parameters:
   StageName:
     Type: String
@@ -17,9 +28,11 @@ Parameters:
     AllowedValues:
       - dev
       - prod
+  SenderEmail:
+    Type: String
 
 Resources:
-  UserTable:
+  UserTable :
     Type: AWS::DynamoDB::Table
     Properties: 
       AttributeDefinitions: 
@@ -45,29 +58,27 @@ Resources:
               Headers:
                 - auth
 
-  GetItemFunction:
+  GetUsersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/
-      Handler: handlers/items.getItem
-      Runtime: nodejs10.x
+      CodeUri: src/getUsersFunction/
       Description: A Lambda function that returns an item.
       Policies:
         - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
       Events:
         ItemAPI:
           Type: Api
           Properties:
             RestApiId: !Ref ItemAPI
-            Path: /item
+            Path: /users
             Method: GET
 
   RegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/
-      Handler: handlers/registration.register
-      Runtime: nodejs10.x
+      CodeUri: src/registerFunction
       Description: A Lambda function that returns an item.
       Policies:
         - AWSLambdaBasicExecutionRole
@@ -78,9 +89,6 @@ Resources:
             Action: 
               - ses:SendEmail
             Resource: '*'
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref UserTable
       Events:
         Register:
           Type: Api
@@ -94,9 +102,8 @@ Resources:
   TokenAuthorizerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/
-      Handler: handlers/tokenAuthorizer.authorize
-      Runtime: nodejs10.x
+      CodeUri: src/tokenAuthorizer
+      Handler: index.handler
       Policies:
         - AWSLambdaBasicExecutionRole
 
