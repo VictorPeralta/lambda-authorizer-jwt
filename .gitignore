@@ -1,5 +1,5 @@
 .aws-sam
-
+samconfig.toml
 # Logs
 logs
 *.log
