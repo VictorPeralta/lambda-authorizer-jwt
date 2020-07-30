@@ -26,7 +26,7 @@ exports.handler = async(event, context) => {
 function decodeToken(bearerToken) {
     const token = getToken(bearerToken);
     try {
-        const decodedJWT = jwt.verify(token, "secret");
+        const decodedJWT = jwt.verify(token, process.env.USER_JWT_SECRET);
         console.log("Decoded", decodedJWT);
         return decodedJWT;
     }

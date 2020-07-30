@@ -17,9 +17,10 @@ Globals:
     Environment:
       Variables:
         TABLE_NAME: !Ref UserTable
-    Environment:
-      Variables:
         SENDER_EMAIL: !Ref SenderEmail
+        USER_JWT_SECRET: !Ref UserJwtSecret
+        EMAIL_JWT_SECRET: !Ref EmailJwtSecret
+
 
 Parameters:
   StageName:
@@ -29,6 +30,10 @@ Parameters:
       - dev
       - prod
   SenderEmail:
+    Type: String
+  UserJwtSecret:
+    Type: String
+  EmailJwtSecret:
     Type: String
 
 Resources:
@@ -98,6 +103,28 @@ Resources:
             Method: POST
             Auth:
               Authorizer: NONE
+      Environment:
+        Variables:
+          BASE_URL: !Sub 'https://auvectder2.execute-api.${AWS::Region}.amazonaws.com/${StageName}/'
+
+  ConfirmEmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/confirmEmailFunction
+      Description: Function executed when user clicks on confirm email link.
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      Events:
+        ConfirmEmail:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ItemAPI
+            Path: /confirmEmail/{validationToken}
+            Method: GET
+            Auth:
+              Authorizer: NONE
 
   TokenAuthorizerFunction:
     Type: AWS::Serverless::Function
@@ -114,7 +141,7 @@ Outputs:
 
   ItemApiUrl:
     Description: "API endpoint URL for Prod environment"
-    Value: !Sub 'https://${ItemAPI}.execute-api.${AWS::Region}.amazonaws.com/dev/'
+    Value: !Sub 'https://${ItemAPI}.execute-api.${AWS::Region}.amazonaws.com/${StageName}/'
 
   TableName: 
     Description: "DynamoDB new table name"

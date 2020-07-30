@@ -8,4 +8,5 @@ s3_prefix = "lambda-authorizer"
 region = "us-west-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "StageName=\"dev\""
+parameter_overrides = "StageName=\"dev\" SenderEmail=\"peralta.r.victor@gmail.com\" UserJwtSecret=\"781e6b2e2jk1cn2r16712rc9n12r\" EmailJwtSecret=\"i7yg2n1vet78b21gr12n1e2512\""
+

@@ -6,7 +6,9 @@ var docClient = new aws.DynamoDB.DocumentClient();
 
 exports.handler = async (event, context) => {
     try {
+        console.log(event);
         const user = JSON.parse(event.body);
+        console.log(user);
         const token = await registerUserGetToken(user);
 
         return {
@@ -24,6 +26,7 @@ exports.handler = async (event, context) => {
 
 const registerUserGetToken = async (user) => {
     try {
+        user.verificationToken = createEmailVerificationToken(user)
         await addUserToDB(user);  
         await sendRegistrationEmail(user);
         return signToken(user);
@@ -33,18 +36,30 @@ const registerUserGetToken = async (user) => {
     }   
 }
 
+function createEmailVerificationToken(user){
+    const payload = {
+        sub: user.email,
+        iss: "test-app",
+        
+    }
+
+    //A JWT is created with the payload content
+    return jwt.sign(payload, process.env.EMAIL_JWT_SECRET)
+}
+
 const addUserToDB = async (user) => {
     const params = {
         TableName: process.env.TABLE_NAME,
         Item: {
             "Email": user.email,
-            "Password": await bcrypt.hash(user.password, 8)
+            "Password": await bcrypt.hash(user.password, 8),
+            "Confirmed": 0
         }
     };
     await docClient.put(params).promise();
 }
 
-const sendRegistrationEmail = async (user) => {
+const sendRegistrationEmail = async (user, verificationToken) => {
     var email = {
         Destination: {
             ToAddresses: [user.email]
@@ -53,7 +68,8 @@ const sendRegistrationEmail = async (user) => {
             Body: {
                 Html: {
                     Charset: "UTF-8",
-                    Data: `<h1>Welcome</h1>. <br>Hello ${user.email}, please confirm your address by clicking <a href='#'>here</a>`
+                    Data: `<h1>Welcome</h1>. <br>Hello ${user.email}, please confirm your address by clicking 
+                    <a href='${process.env.BASE_URL + 'confirmEmail/' + user.verificationToken}'>here</a>`
                 }
             },
             Subject: {
@@ -79,5 +95,5 @@ const signToken = (user) => {
     }
 
     //A JWT is created with the payload content
-    return jwt.sign(payload, "secret")
+    return jwt.sign(payload, process.env.USER_JWT_SECRET)
 }
