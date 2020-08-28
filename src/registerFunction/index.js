@@ -32,11 +32,12 @@ const registerUserGetToken = async (user) => {
 function createEmailConfirmationToken(user) {
     const payload = {
         sub: user.email,
-        iss: "test-app",
+        iss: "lambda-auth",
+        aud: "lambda-auth",
         verificationToken: user.verificationToken
     };
 
-    return jwt.sign(payload, process.env.EMAIL_JWT_SECRET);
+    return jwt.sign(payload, process.env.EMAIL_JWT_SECRET, { expiresIn: "7d" }); //The confirm email token will expire in 7 days
 }
 
 const addUserToDB = async (user) => {
@@ -92,9 +93,10 @@ const sendRegistrationEmail = async (user, confirmationToken) => {
 const signinToken = (user) => {
     const payload = {
         sub: user.email,
-        iss: "test-app"
-    }
+        iss: "lambda-auth",
+        aud: "lambda-auth"
+    };
 
     //A JWT is created with the payload content
-    return jwt.sign(payload, process.env.USER_JWT_SECRET)
+    return jwt.sign(payload, process.env.USER_JWT_SECRET, { expiresIn: "1d" })
 }
