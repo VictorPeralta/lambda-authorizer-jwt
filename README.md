@@ -40,11 +40,8 @@ To deploy to AWS, run the following commands. Replace BUCKET_NAME for an existin
 ```
 > sam build
 
-> sam package --template-file .\template.yml --s3-bucket BUCKET_NAME
-\ --output-template-file packaged.yaml
 
->  sam deploy --template-file .\packaged.yaml --stack-name STACK_NAME
-\ --capabilities CAPABILITY_IAM
+>  sam deploy --guided
 ```
 
 ## To-do

@@ -20,6 +20,8 @@ Globals:
         SENDER_EMAIL: !Ref SenderEmail
         USER_JWT_SECRET: !Ref UserJwtSecret
         EMAIL_JWT_SECRET: !Ref EmailJwtSecret
+        PASSWORD_JWT_SECRET: !Ref PasswordJwtSecret
+
 
 
 Parameters:
@@ -34,6 +36,8 @@ Parameters:
   UserJwtSecret:
     Type: String
   EmailJwtSecret:
+    Type: String
+  PasswordJwtSecret:
     Type: String
 
 Resources:
@@ -123,6 +127,67 @@ Resources:
             RestApiId: !Ref ItemAPI
             Path: /confirmEmail/{validationToken}
             Method: GET
+            Auth:
+              Authorizer: NONE
+  
+  ForgotPasswordEmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/forgotPasswordEmailFunction
+      Description: Function executed when user clicks on forgot password.
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            Effect: Allow
+            Action: 
+              - ses:SendEmail
+            Resource: '*' 
+      Events:
+        SendForgotPasswordEmail:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ItemAPI
+            Path: /forgotPasswordEmail
+            Method: POST
+            Auth:
+              Authorizer: NONE
+      Environment:
+        Variables:
+          BASE_URL: !Sub 'https://auvectder2.execute-api.${AWS::Region}.amazonaws.com/${StageName}/'
+
+  ResetPasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/resetPasswordFunction
+      Description: Function executed when user clicks on reset password link from the email.
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      Events:
+        ResetPassword:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ItemAPI
+            Path: /resetPassword/{token}
+            Method: POST
+
+  ChangePasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/changePasswordFunction
+      Description: Function executed a logged in user changes their password.
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+      Events:
+        ChangePassword:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ItemAPI
+            Path: /changePassword
+            Method: POST
             Auth:
               Authorizer: NONE
 
