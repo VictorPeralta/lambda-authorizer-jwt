@@ -2,6 +2,14 @@ const jwt = require('jsonwebtoken');
 var aws = require('aws-sdk');
 var docClient = new aws.DynamoDB.DocumentClient();
 
+function HttpException(message, statusCode) {
+    const error = new Error(message);
+    error.statusCode = statusCode;
+    return error;
+}
+
+HttpException.prototype = Object.create(Error.prototype);
+
 
 exports.handler = async (event, context) => {
     const token = event.pathParameters.token;
@@ -9,8 +17,9 @@ exports.handler = async (event, context) => {
         const { newPassword, confirmPassword } = JSON.parse(event.body);
 
         if (newPassword !== confirmPassword) {
-            throw Error("Password and Confirm Password don't match");
+            throw HttpException("Password and Confirm Password don't match", 422);
         }
+
         const decodedJWT = jwt.verify(token, process.env.PASSWORD_JWT_SECRET);
         const sub = decodedJWT.sub;
         const data = await docClient.get({
@@ -42,10 +51,9 @@ exports.handler = async (event, context) => {
     } catch (error) {
         console.error(error);
         return {
-            statusCode: 500,
-            body: error.message
+            statusCode: error.statusCode || 500,
+            body: error.message || "Something went wrong"
         };
-
     }
 
 };

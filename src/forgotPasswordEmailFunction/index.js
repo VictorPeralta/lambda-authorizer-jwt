@@ -6,8 +6,10 @@ exports.handler = async (event, context) => {
     try {
         const {email} = JSON.parse(event.body);
         console.log(email)
-        const token = await createPasswordResetToken(email);
-        await sendResetPasswordToken(email, token);
+
+        const user = getUserByEmail(email);
+        const token = createPasswordResetToken(user);
+        await sendResetPasswordToken(user.email, token);
 
         return {
             statusCode: 200,
@@ -22,22 +24,30 @@ exports.handler = async (event, context) => {
     }
 };
 
-//Todo: include hash substring to compare if password has changed already
-//Todo: Add expiration
-function createPasswordResetToken(email){
-    const payload = {
-        sub: email,
-        iss: "test-app",
-    };
+async function getUserByEmail(email){
+    const data = await docClient.get({
+        TableName: process.env.TABLE_NAME,
+        Key: { Email: email }
+    }).promise();
 
-    //A JWT is created with the payload content
-    return jwt.sign(payload, process.env.PASSWORD_JWT_SECRET);
+    return data.Item;
 }
 
-async function sendResetPasswordToken(email, token){
+function createPasswordResetToken(user){
+    const payload = {
+        sub: user.email,
+        iss: "lambda-auth",
+        aud: "lambda-auth",
+        verificationToken: user.verificationToken
+    };
+
+    return jwt.sign(payload, process.env.PASSWORD_JWT_SECRET, { expiresIn: "2h" });
+}
+
+async function sendResetPasswordToken(destinationEmail, token){
     var email = {
         Destination: {
-            ToAddresses: [email]
+            ToAddresses: [destinationEmail]
         },
         Message: {
             Body: {

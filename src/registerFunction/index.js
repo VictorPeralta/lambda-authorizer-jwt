@@ -4,6 +4,15 @@ const aws = require('aws-sdk');
 const docClient = new aws.DynamoDB.DocumentClient();
 const crypto = require('crypto');
 
+function HttpException(message, statusCode) {
+    const error = new Error(message);
+    error.statusCode = statusCode;
+    return error;
+  }
+  
+HttpException.prototype = Object.create(Error.prototype);
+
+
 exports.handler = async (event, context) => {
     try {
         const user = JSON.parse(event.body);
@@ -15,8 +24,8 @@ exports.handler = async (event, context) => {
     } catch (error) {
         console.error(error);
         return {
-            statusCode: 500,
-            body: error.message
+            statusCode: error.statusCode ||  500,
+            body: error.message || "Something went wrong"
         };
     }
 };
@@ -26,7 +35,7 @@ const registerUserGetToken = async (user) => {
     const emailConfirmationToken = createEmailConfirmationToken(user); //The token to confirm a user's email
     await addUserToDB(user);
     await sendRegistrationEmail(user, emailConfirmationToken); //Send welcome email with the confirmation token
-    return signinToken(user); //Return the sign in token
+    return createSignInToken(user); //Return the sign in token
 };
 
 function createEmailConfirmationToken(user) {
@@ -54,8 +63,8 @@ const addUserToDB = async (user) => {
         };
         await docClient.put(params).promise();
     } catch (err) {
-        if (err.message === "The conditional request failed") { //This is returned by dynamoDB if the ciondition is not met
-            throw new Error("This email has already been registered");
+        if (err.message === "The conditional request failed") { //This is returned by dynamoDB if the condition is not met
+            throw new HttpException("This email has already been registered", 409);
         }
         throw err;
     }
@@ -90,7 +99,7 @@ const sendRegistrationEmail = async (user, confirmationToken) => {
     await new aws.SES({ apiVersion: '2010-12-01' }).sendEmail(email).promise();
 }
 
-const signinToken = (user) => {
+const createSignInToken = (user) => {
     const payload = {
         sub: user.email,
         iss: "lambda-auth",
