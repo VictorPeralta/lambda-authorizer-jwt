@@ -15,7 +15,13 @@ HttpException.prototype = Object.create(Error.prototype);
 
 exports.handler = async (event, context) => {
     try {
-        const user = JSON.parse(event.body);
+        
+        const body = parseAndValidateRequest(event);
+        
+        const user = {
+            email: body.email,
+            password: body.password
+        }
         const token = await registerUserGetToken(user); //Register user and get a JWT to log in
         return {
             statusCode: 200,
@@ -29,6 +35,24 @@ exports.handler = async (event, context) => {
         };
     }
 };
+
+function parseAndValidateRequest(event){
+    if(!event.body){
+        throw new HttpException("Request body missing", 400);
+    }
+
+    const body = JSON.parse(event.body);
+
+    if(!body.email){
+        throw new HttpException("Email is a required field", 400)
+    }
+    
+    if(!body.password){
+        throw new HttpException("Password is a required field", 400)
+    }
+
+    return body;
+}
 
 const registerUserGetToken = async (user) => {
     user.verificationToken = crypto.randomBytes(16).toString('hex'); //This verification token will be used for password resets and token refresh

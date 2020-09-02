@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const aws = require('aws-sdk');
 const docClient = new aws.DynamoDB.DocumentClient();
@@ -17,22 +16,21 @@ exports.handler = async (event) => {
     try {
         console.log(event.requestContext)
         
-        const {oldPassword, newPassword, repeatNewPassword} = event.body;
+        const {oldPassword, newPassword, repeatNewPassword} = JSON.parse(event.body);
         
         if (newPassword !== repeatNewPassword) {
             throw HttpException("Password and Confirm Password don't match", 400);
         }
         
-        const user = getUserByEmail(event.requestContext.authorizer.userEmail);
-
-        if (await bcrypt.hash(oldPassword, 8) !== user.password) {
+        const user = await getUserByEmail(event.requestContext.authorizer.userEmail);
+        console.log("USER", user)
+        if (await bcrypt.compare(oldPassword, user.Password)) {
             throw HttpException("Old password incorrect.", 400);
         }else{
             updateUserPasswordAndToken(user, newPassword);
         }
 
         const body = {
-            userlist: await getUsers(),
             user: event.requestContext.authorizer.userEmail, //User comes from authorizer
         };
 

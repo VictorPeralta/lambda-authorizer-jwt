@@ -188,8 +188,6 @@ Resources:
             RestApiId: !Ref ItemAPI
             Path: /changePassword
             Method: POST
-            Auth:
-              Authorizer: NONE
 
   TokenAuthorizerFunction:
     Type: AWS::Serverless::Function
