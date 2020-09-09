@@ -51,6 +51,12 @@ function parseAndValidateRequest(event){
         throw new HttpException("Password is a required field", 400)
     }
 
+    const passwordRegex = /^(?=.*[A-z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/
+
+    if(!passwordRegex.test(body.password)){
+        throw new HttpException("Password must contain at least 1 letter and 1 number and be at least 8 characters long.", 400)
+    }
+
     return body;
 }
 
